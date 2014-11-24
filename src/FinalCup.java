@@ -17,6 +17,11 @@ public class FinalCup implements Serializable
 		winningsCup = winner;
 	}
 
+	public boolean isWinner()
+	{
+		return winningsCup;
+	}
+	
 	public int getSeeds()
 	{
 		return seedCount;

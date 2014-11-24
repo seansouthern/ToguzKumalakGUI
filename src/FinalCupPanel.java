@@ -1,147 +1,96 @@
+import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridLayout;
 import java.awt.Rectangle;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
-public class FinalCupPanel extends FinalCup
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+public class FinalCupPanel extends JPanel
 {
 
 	private FinalCup gameCup;
-	private boolean winnings;
-	private int x;
-	private int y;
-	private int w;
-	private int h;
-	private int seedX;
-	private int seedY;
-	private ArrayList<FinalSeedPanel> seedList;
-	private Rectangle cupRect;
+	private JButton button;
+	private JTextField textField;
+	private int player;
+	private int position;
+	private FinalTogizBoard board;
 	
-	FinalCupPanel(FinalCup inCup, int xIn, int yIn, int wIn, int hIn, boolean winner)
+	FinalCupPanel(FinalTogizBoard inBoard, FinalCup inCup, int inPlayer, int inPosition)
 	{
-		x = xIn;
-		y = yIn;
-		w = wIn;
-		h = hIn;
-		seedX = 0;
-		seedY = 0;
 		gameCup = inCup;
-		winnings = winner;
-
-		seedList = new ArrayList<FinalSeedPanel>();
-
-		cupRect = new Rectangle(x,y,w,h);
-		for(int i = 0;i < 162/**getSeeds()**/; i++ )
-		{
-			seedList.add(new FinalSeedPanel());
-		}
-	}
-
-	
-	public void drawCup(Graphics2D g2)
-	{
-		g2.draw(cupRect);
+		player = inPlayer;
+		position = inPosition;
+		board = inBoard;
+		textField = new JTextField();
 		
-		int seedsRemaining = getSeeds();
-		int lastLine = getSeeds() % 4;
-		seedX = x + 13;
-		seedY = y + 3;
 
-		if(winnings == false)
+		
+		
+		if(inCup.isWinner() == false)
 		{
-			for(int i = 0; i < getSeeds() / 2; i++)
+			setLayout(new GridLayout(4, 1));
+			button = new JButton("Play Cup");
+			
+			if(player == 0 && gameCup.isWinner() == false)
 			{
-				for(int j = 0; j < 2; j++)
-				{
-					if (seedsRemaining > 0)
-					{
-						seedList.get(j).drawSeed(g2, cupRect, seedX, seedY);
-						seedX+=10;
-						seedsRemaining--;
-					}
-				}
-				seedY +=10;
-				seedX -=20;
+				add(new JLabel("Player 1,"));
+				add(new JLabel(" Cup " + (10 -position)));
+				add(button);
+				textField.setText(Integer.toString(gameCup.getSeeds()));
+				add(textField);
 			}
-			for (int k = 0; k < lastLine; k++)
+			else if(player == 1 && gameCup.isWinner() == false)
 			{
-				if (seedsRemaining > 0)
-				{
-					seedList.get(k).drawSeed(g2, cupRect, seedX, seedY);
-					seedX+=10;
-					seedsRemaining--;
-				}
+				textField.setText(Integer.toString(gameCup.getSeeds()));
+				add(textField);
+				add(button);
+				add(new JLabel("Player 2,"));
+				add(new JLabel(" Cup " + (position + 1)));
+			}
+			
+		}
+
+		else if(gameCup.isWinner())
+		{
+			setLayout(new GridLayout(3, 1));
+			if(player == 0)
+			{
+				add(new JLabel("Player 1,"));
+				add(new JLabel("Captured Cup"));
+				textField.setText("0");
+				textField.setColumns(3);
+				add(textField);
+			}
+			else if(player == 1)
+			{
+				textField.setText("0");
+				textField.setColumns(3);
+				add(textField);
+				add(new JLabel("Player 2,"));
+				add(new JLabel("Captured Cup"));
 			}
 		}
-		else if(winnings == true)
-		{
-			int seedIndent = 0;
-			for(int i = 0; i < getSeeds() / 4; i++)
-			{
-				for(int j = 0; j < 4; j++)
-				{
-					if (seedsRemaining > 0)
-					{
-						seedList.get(j).drawSeed(g2, cupRect, seedX, seedY);
-						seedX+=10;
-						seedsRemaining--;
-					}
-				}
-				if(seedIndent < 1)
-				{
-					seedY +=10;
-					seedX -=40;
-					seedIndent++;
-				}
-				else
-				{
-					seedY-=10;
-					seedX+=10;
-					seedIndent = 0;
-				}
-			}
-			for (int k = 0; k < lastLine; k++)
-			{
-				if (seedsRemaining > 0)
-				{
-					seedList.get(k).drawSeed(g2, cupRect, seedX, seedY);
-					seedX+=10;
-					seedsRemaining--;
-				}	
-			}
-		}
-	}
-
-	public Rectangle getRect()
-	{
-		return cupRect;
+		
 	}
 	
-	public void setX(int inX)
+	public int getPosition()
 	{
-		x = inX;
-	}
-	public int getX()
-	{
-		return x;
+		return position;
 	}
 
-	public void setY(int inY)
+	public void paintComponent(Graphics g)
 	{
-		y = inY;
+		Graphics2D g2 = (Graphics2D) g;		
+		super.paintComponent(g2);
+	
 	}
-	public int getY()
-	{
-		return y;
-	}
+	
 
-
-
-	public String getParams()
-	{
-		String output = "X:" + Integer.toString(x) + "  Y:" + Integer.toString(y) + "  W:" + Integer.toString(w) + 
-				"  H:" + Integer.toString(h);
-		return output;
-	}
 
 }

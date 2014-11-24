@@ -7,10 +7,11 @@ public class FinalTogizBoard implements Serializable
 {
 	private FinalCup[][] board;
 	private FinalCup[] winnings;
-
+	private int BOARDWIDTH = 10;
+	
 	public FinalTogizBoard()
 	{
-		board = new FinalCup[2][9];
+		board = new FinalCup[2][BOARDWIDTH];
 		winnings = new FinalCup[2];
 		initializeBoard();
 	}
@@ -24,7 +25,7 @@ public class FinalTogizBoard implements Serializable
 	{
 		for(int i = 0; i < 2; i++)
 		{	
-			for(int j = 0; j < 9; j++)
+			for(int j = 0; j < BOARDWIDTH; j++)
 			{
 				board[i][j] = new FinalCup(9, false);
 			}
@@ -77,16 +78,16 @@ public class FinalTogizBoard implements Serializable
 			}
 			else if(player == 1)
 			{
-				if(cupPlayedInd < 8)
+				if(cupPlayedInd < BOARDWIDTH-1)
 				{
 					getBoard()[player][cupPlayedInd+1].addSeed();
 					cupPlayedInd++;
 				}
 
-				else if(cupPlayedInd == 8)
+				else if(cupPlayedInd == BOARDWIDTH-1)
 				{
 					player = 0;
-					cupPlayedInd = 8;
+					cupPlayedInd = BOARDWIDTH-1;
 					getBoard()[player][cupPlayedInd].addSeed();
 				}
 			}
@@ -107,24 +108,6 @@ public class FinalTogizBoard implements Serializable
 	public int getWinnings(int player)
 	{
 		return winnings[player].getSeeds();
-	}
-
-	public void printBoard()
-	{
-		int j =0;
-		for(int i =0; i < board[j].length;i++ )
-		{
-			System.out.print(board[j][i].getSeeds() + " | ");
-		}
-		System.out.println("");
-		System.out.println("---------------" + getWinnings(0) + "--------------");
-		System.out.println("---------------" + getWinnings(1) + "--------------");
-		j = 1;
-		for(int i =0; i < board[j].length;i++ )
-		{
-			System.out.print(board[j][i].getSeeds() + " | ");
-		}
-
 	}
 
 }

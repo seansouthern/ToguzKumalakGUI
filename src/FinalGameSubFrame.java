@@ -1,4 +1,8 @@
+import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -13,20 +17,28 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 
 class FinalGameSubFrame extends JFrame
 {
 	private FinalGamePanel gPanel;
 	private JFileChooser gFileChooser;
+	private FinalTogizBoard board;
 	
 	public FinalGameSubFrame()
 	{
 		setTitle("Toguz Kumalak");
-		setSize(800, 450);
-		gPanel = new FinalGamePanel();
-		Container frameContentPane = getContentPane();
-		frameContentPane.add(gPanel, "Center");
+		setSize(1000, 500);
 
+		board = new FinalTogizBoard();
+		gPanel = new FinalGamePanel(board);
+		
+		Container frameContentPane = getContentPane();
+		frameContentPane.add(gPanel);
+
+		
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
 
@@ -59,6 +71,8 @@ class FinalGameSubFrame extends JFrame
 		
 		gFileChooser = new JFileChooser();
 		
+		setVisible(true);
+		
 
 	}
 
@@ -78,7 +92,6 @@ class FinalGameSubFrame extends JFrame
 				objOut.writeObject(gPanel.getBoard());
 				objOut.writeObject(gPanel.getPlayer());
 				objOut.writeObject(gPanel.getMove());
-				objOut.writeObject(gPanel.getText());
 			}
 			catch(IOException e)
 			{
@@ -106,7 +119,6 @@ class FinalGameSubFrame extends JFrame
 				gPanel.setBoard((FinalTogizBoard) objIn.readObject());
 				gPanel.setPlayer((int) objIn.readObject());
 				gPanel.setMove((int) objIn.readObject());
-				gPanel.setText((String) objIn.readObject());
 				
 				gPanel.updateCups();
 				setVisible(true);
@@ -129,10 +141,8 @@ class FinalGameSubFrame extends JFrame
 	{
 		public void actionPerformed(ActionEvent event)
 		{
-			gPanel.initializeCups();
 			gPanel.setMove(1);
 			gPanel.setPlayer(0);
-			gPanel.setText("");
 		}
 	}
 	private class ExitListener implements ActionListener

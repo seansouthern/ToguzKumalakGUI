@@ -1,6 +1,9 @@
+import java.awt.BorderLayout;
 import java.awt.Cursor;
+import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridLayout;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -14,63 +17,96 @@ class FinalGamePanel extends JPanel
 {
 	private FinalTogizBoard board;
 	private int player;
-	private FinalCupPanel[][] graphicalBoard;
-	private FinalCupPanel[] graphicalWinnings;
-	private int x;
-	private int y;
-	private JTextArea gTextArea;
+	private int moveCount;
+	private GridLayout grid;
+	private FinalCupPanel[][] graphicalPanel;
+	private FinalCupPanel playerOneWinnings;
+	private FinalCupPanel playerTwoWinnings;
+	private JTextArea moveRecord;
 	private JScrollPane gScrollPane;
-	private int moveCount = 1;
-
-
-
-	public FinalGamePanel()
+	
+	public FinalGamePanel(FinalTogizBoard inBoard)
 	{
-		board = new FinalTogizBoard();
-		player = 0;
-		x = 200;
-		y = 145;
-		initializeCups();
-		updateCups();
-		repaint();
+		//10 cups 8 seeds in a horizontal layout
+		setPlayer(0);
+		moveCount = 1;
+		graphicalPanel = new FinalCupPanel[2][10];
+		playerOneWinnings = new FinalCupPanel(getBoard(), new FinalCup(0, true), 0, 0);
+		playerTwoWinnings = new FinalCupPanel(getBoard(), new FinalCup(0, true), 1, 0);
+		grid = new GridLayout(2,10);
 		
-
-		gTextArea = new JTextArea(6,24);
-		gTextArea.setEditable(false);
-		gScrollPane = new JScrollPane(gTextArea,
+		setLayout(new BorderLayout());
+		setBoard(inBoard);
+		
+		JPanel boardContainer = new JPanel(grid);
+		JPanel boardAndWinningsContainer = new JPanel(new BorderLayout());
+		JPanel winOneContainer = new JPanel(new FlowLayout());
+		JPanel winTwoContainer = new JPanel(new FlowLayout());
+		
+		boardAndWinningsContainer.add(winOneContainer, "North");
+		boardAndWinningsContainer.add(boardContainer, "Center");
+		boardAndWinningsContainer.add(winTwoContainer, "South");
+		
+		winOneContainer.add(playerOneWinnings);
+		
+		for( int i=0; i< 2; i++)
+		{
+			for(int j = 0; j < 10; j++)
+			{
+				graphicalPanel[i][j] = new FinalCupPanel(getBoard(), getBoard().getBoard()[i][j], i, j);
+				boardContainer.add(graphicalPanel[i][j]);
+			}
+		}
+		
+		winTwoContainer.add(playerTwoWinnings);
+		
+		moveRecord = new JTextArea(6,24);
+		moveRecord.setEditable(false);
+		gScrollPane = new JScrollPane(moveRecord,
 				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
 				JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-
 		
-		add(gScrollPane);
+		JPanel scrollContainer = new JPanel(new FlowLayout());
+		scrollContainer.add(gScrollPane);
 		
-		MouseClickHandler mListener = new MouseClickHandler();
-		MouseMotionHandler motionHandler= new MouseMotionHandler();
-		KeyHandler kHandler = new KeyHandler();
-
-		addMouseListener(mListener);
-		addMouseMotionListener(motionHandler);
-		addKeyListener(kHandler);
+		add(scrollContainer, BorderLayout.NORTH);
+		
+		add(boardAndWinningsContainer, BorderLayout.SOUTH);
 		
 		setFocusable(true);
-		
+	    setVisible(true);
+	}
+
+
+	public void updateCups()
+	{
+		for( int i=0; i< 2; i++)
+		{
+			for(int j = 0; j < 10; j++)
+			{
+				graphicalPanel[i][j] = new FinalCupPanel(getBoard(), getBoard().getBoard()[i][j], i, j);
+			}
+		}
+		repaint();
 	}
 	
 	public void paintComponent(Graphics g)
 	{
 		Graphics2D g2 = (Graphics2D) g;		
+		//updateCups();
 		super.paintComponent(g2);
-
-		for(int i = 0; i < 2; i++)
-		{	
-			for(int j = 0; j < 9; j++)
-			{
-				graphicalBoard[i][j].drawCup(g2);
-			}
-		}
-		for(int k = 0; k < 2; k++)
+		g2.drawString("Test string", 100, 100);
+		
+	}
+	
+	private class MouseClickHandler extends MouseAdapter
+	{
+		public void mouseClicked(MouseEvent event)
 		{
-			graphicalWinnings[k].drawCup(g2);
+			int position = ((FinalCupPanel) event.getComponent().getParent()).getPosition();
+			getBoard().playCup(player, position);
+			updateCups();
+			repaint();
 		}
 	}
 
@@ -78,152 +114,12 @@ class FinalGamePanel extends JPanel
 	{
 		public void keyTyped(KeyEvent event)
 		{
-			int numInput = 0;
-			char keyChar = event.getKeyChar();
-			if(Character.isDigit(keyChar) && Integer.parseInt(Character.toString(keyChar))!=0)
-			{
-				String stringInput = Character.toString(keyChar);
-				numInput = Integer.parseInt(stringInput);
-				getBoard().playCup(player, (numInput-1));
-				gTextArea.append("Move: " + moveCount + "  Player: " + (player+1) +
-						".  Cup: " + stringInput + ".\n");
-
-				if (player == 0)
-				{
-					player = 1;
-				}
-				else if(player == 1)
-				{
-					player = 0;
-				}
-				updateCups();
-
-				repaint();
-				moveCount++;
-			}
-		}
-	}
-	private class MouseClickHandler extends MouseAdapter
-	{
-		public void mouseClicked(MouseEvent event)
-		{
-			for(int j = 0; j < 9; j++)
-			{
-				if(graphicalBoard[player][j].getRect().contains(event.getPoint()))
-				{
-					getBoard().playCup(player, j);
-
-					gTextArea.append("Move: " + moveCount + "  Player: " + (player+1) +
-							".  Cup: " + (j+1) + ".\n");
-					
-					if (player == 0)
-					{
-						player = 1;
-					}
-					else if(player == 1)
-					{
-						player = 0;
-					}
-					updateCups();
-
-					repaint();
-					moveCount++;
-				}
-			}
+	
 		}
 	}
 
-	private class MouseMotionHandler extends MouseAdapter
-	{
-		public void mouseMoved(MouseEvent event)
-		{
-			boolean handFlag = false;
-			for(int j = 0; j < 9; j++)
-			{
-				if(graphicalBoard[player][j].getRect().contains(event.getPoint()))
-				{
-					setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-					handFlag = true;
-					repaint();
-				}
-				else if(handFlag == false)
-				{
-					setCursor(Cursor.getDefaultCursor());
-				}
-			}
-		}
-	}
 
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	public void initializeCups()
-	{
-		setBoard(new FinalTogizBoard());
-		graphicalBoard = new FinalCupPanel[2][9];
-		graphicalWinnings = new FinalCupPanel[2];
-		FinalCup dummyCup = new FinalCup();
-		x=200;
-		y=145;
 
-		for(int i = 0; i < 2; i++)
-		{	
-			x=200;
-			for(int j = 0; j < 9; j++)
-			{
-				FinalCupPanel inCupPanel = new FinalCupPanel(dummyCup, x, y, 40, 80, false);
-				graphicalBoard[i][j] = inCupPanel;
-				x+=45;
-			}
-			y+=125;
-		}		
-		y= 228;
-		for(int j = 0; j < 2; j++)
-		{
-			FinalCupPanel winningsCupPanel = new FinalCupPanel(dummyCup, 200, y, 400, 20, true);
-			graphicalWinnings[j] = winningsCupPanel;
-			graphicalWinnings[j].clearSeeds();
-			y+=20;
-		}
-		repaint();
-	}
-
-	public void updateCups()
-	{
-		x=200;
-		y=145;
-		for(int i = 0; i < 2; i++)
-		{
-			for(int j = 0; j < 9; j++)
-			{
-				graphicalBoard[i][j].setSeeds(getBoard().getBoard()[i][j].getSeeds());
-				System.out.println("Index: " + i + "   Index: " + j + " Seeds:" + graphicalBoard[i][j].getSeeds());
-			}
-		}	
-		for(int j = 0; j < 2; j++)
-		{
-			graphicalWinnings[j].setSeeds(getBoard().getWinnings(j));
-			y+=40;
-		}
-	}
-
-	
-	
-	public String getText()
-	{
-		return gTextArea.getText();
-	}
-	public void setText(String inText)
-	{
-		gTextArea.setText(inText);
-	}
 	public int getMove()
 	{
 		return moveCount;
@@ -247,8 +143,7 @@ class FinalGamePanel extends JPanel
 	public void setBoard(FinalTogizBoard gBoard)
 	{
 		board = gBoard;
-		repaint();
 	}
-	
+
 
 }
