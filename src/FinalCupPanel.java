@@ -1,10 +1,6 @@
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
-import java.awt.Rectangle;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -20,6 +16,7 @@ public class FinalCupPanel extends JPanel
 	private int player;
 	private int position;
 	private FinalTogizBoard board;
+	private String name;
 	
 	FinalCupPanel(FinalTogizBoard inBoard, FinalCup inCup, int inPlayer, int inPosition)
 	{
@@ -29,18 +26,16 @@ public class FinalCupPanel extends JPanel
 		board = inBoard;
 		textField = new JTextField();
 		
-
-		
-		
-		if(inCup.isWinner() == false)
+		if(!inCup.isWinner())
 		{
 			setLayout(new GridLayout(4, 1));
 			button = new JButton("Play Cup");
+			button.setName("button");
 			
 			if(player == 0 && gameCup.isWinner() == false)
 			{
 				add(new JLabel("Player 1,"));
-				add(new JLabel(" Cup " + (10 -position)));
+				add(new JLabel(" Cup " + (10-position)));
 				add(button);
 				textField.setText(Integer.toString(gameCup.getSeeds()));
 				add(textField);
@@ -79,6 +74,21 @@ public class FinalCupPanel extends JPanel
 		
 	}
 	
+	public JTextField getTextField()
+	{
+		return textField;
+	}
+	
+	public FinalCup getCup()
+	{
+		return gameCup;
+	}
+	
+	public int getPlayer()
+	{
+		return player;
+	}
+	
 	public int getPosition()
 	{
 		return position;
@@ -88,9 +98,6 @@ public class FinalCupPanel extends JPanel
 	{
 		Graphics2D g2 = (Graphics2D) g;		
 		super.paintComponent(g2);
-	
 	}
 	
-
-
 }
