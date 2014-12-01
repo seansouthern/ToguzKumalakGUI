@@ -8,7 +8,8 @@ public class FinalTogizBoard implements Serializable
 	private FinalCup[] winnings;
 	private int BOARDWIDTH = 10;
 	private int player;
-
+	private int lastWinnings;
+	
 	public FinalTogizBoard()
 	{
 		board = new FinalCup[2][BOARDWIDTH];
@@ -101,13 +102,17 @@ public class FinalTogizBoard implements Serializable
 			{
 				int winnings = getBoard()[playerWhoseTurnItIs][cupPlayedInd].getSeeds();
 				depositWinnings(player, winnings);
+				lastWinnings = winnings;
 				getBoard()[playerWhoseTurnItIs][cupPlayedInd].clearSeeds();
+			}
+			else
+			{
+				lastWinnings = 0;
 			}
 
 			togglePlayer();
 			
 			System.out.println(player + " is the player at the end of playCup");
-			
 			
 			printBoard();
 		}
@@ -138,6 +143,11 @@ public class FinalTogizBoard implements Serializable
 		return winnings[player].getSeeds();
 	}
 
+	public int getLastWinnings()
+	{
+		return lastWinnings;
+	}
+	
 	public FinalCup getWinOneCup()
 	{
 		return winnings[0];
@@ -151,6 +161,11 @@ public class FinalTogizBoard implements Serializable
 	public int getCurrentPlayer()
 	{
 		return player;
+	}
+	
+	public void setPlayer(int inPlayer)
+	{
+		player = inPlayer;
 	}
 	
 	public void printBoard()

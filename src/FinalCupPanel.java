@@ -31,6 +31,7 @@ public class FinalCupPanel extends JPanel
 			setLayout(new GridLayout(4, 1));
 			button = new JButton("Play Cup");
 			button.setName("button");
+			textField.setName("textfield");
 			
 			if(player == 0 && gameCup.isWinner() == false)
 			{

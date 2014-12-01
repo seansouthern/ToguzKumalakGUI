@@ -1,6 +1,5 @@
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Cursor;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -10,11 +9,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 
 class FinalGamePanel extends JPanel
 {
@@ -33,23 +30,75 @@ class FinalGamePanel extends JPanel
 	private JPanel winOneContainer;
 	private JPanel winTwoContainer;
 	private JPanel scrollContainer;
+	private int BOARDWIDTH = 10;
 
 	public FinalGamePanel(FinalTogizBoard inBoard)
 	{
 		//10 cups 8 seeds in a horizontal layout
 		setPlayer(0);
-		moveCount = 1;
+		moveCount = 0;
 		setBoard(inBoard);
 		buildBoard(inBoard);
-
+		setFocusable(true);
+		addKeyListener(new KeyboardMoveHandler());
 	}
 
+	private class KeyboardMoveHandler extends KeyAdapter
+	{
+		public void keyTyped(KeyEvent event)
+		{
+			System.out.println("Hello, key pressed.");
+			int numInput = 0;
+			char keyChar = event.getKeyChar();
+			if(Character.isDigit(keyChar))
+			{
+				String stringInput = Character.toString(keyChar);
+				numInput = Integer.parseInt(stringInput);
+				if(getPlayer() == 0)
+				{
+					if(numInput == 0)
+					{
+						numInput = 1;
+					}
+					else
+					{						
+						numInput = BOARDWIDTH - numInput + 1 ;
+					}
+				}
+				else if(getPlayer() == 1 && numInput == 0)
+				{
+					numInput = 10;
+				}
+				position = numInput -1;
+				getBoard().playCup(getPlayer(), position);
+				moveCount++;
+				updateMoveRecord();
+				setPlayer(getBoard().getCurrentPlayer());
+				updateBoard();
+
+			}
+		}
+	}
+	
+	private class TextboxKeyFocusHandler extends KeyAdapter
+	{
+		public void keyTyped(KeyEvent event)
+		{
+			System.out.println("Hello, key pressed on TextField");
+			if (event.getKeyCode() == event.VK_ENTER)
+			{
+				
+				
+			}
+		}
+	}
+	
 	public void buildBoard(FinalTogizBoard inBoard)
 	{
-		graphicalPanel = new FinalCupPanel[2][10];
+		graphicalPanel = new FinalCupPanel[2][BOARDWIDTH];
 		playerOneWinnings = new FinalCupPanel(getBoard(), new FinalCup(0, true), 0, 0);
 		playerTwoWinnings = new FinalCupPanel(getBoard(), new FinalCup(0, true), 1, 0);
-		grid = new GridLayout(2,10);
+		grid = new GridLayout(2,BOARDWIDTH);
 
 		setLayout(new BorderLayout());
 		setBoard(inBoard);
@@ -65,12 +114,11 @@ class FinalGamePanel extends JPanel
 
 		winOneContainer.add(playerOneWinnings);
 
-
 		Component[] components;
 
 		for( int i=0; i< 2; i++)
 		{
-			for(int j = 0; j < 10; j++)
+			for(int j = 0; j < BOARDWIDTH; j++)
 			{
 				graphicalPanel[i][j] = new FinalCupPanel(getBoard(), getBoard().getBoard()[i][j], i, j);
 				boardContainer.add(graphicalPanel[i][j]);
@@ -83,7 +131,10 @@ class FinalGamePanel extends JPanel
 						if(components[k].getName().equals("button"))
 						{
 							components[k].addMouseListener(new MouseClickHandler());
-
+							
+							//Necessary to allow for coexisting keyboard listeners
+							components[k].setFocusable(false);
+							
 							for(int l = 0; l < components[k].getMouseListeners().length; l++)
 							{
 								if(components[k].getMouseListeners()[l].getClass().getName().equals("FinalGamePanel$MouseClickHandler"))
@@ -103,6 +154,10 @@ class FinalGamePanel extends JPanel
 								}
 							}
 						}
+						else if(components[k].getName().equals("textfield"))
+						{
+							components[k].addKeyListener(new TextboxKeyFocusHandler());
+						}
 					}
 				}
 			}
@@ -110,7 +165,7 @@ class FinalGamePanel extends JPanel
 
 		winTwoContainer.add(playerTwoWinnings);
 
-		moveRecord = new JTextArea(6,24);
+		moveRecord = new JTextArea(6,54);
 		moveRecord.setEditable(false);
 		gScrollPane = new JScrollPane(moveRecord,
 				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
@@ -118,6 +173,7 @@ class FinalGamePanel extends JPanel
 
 		scrollContainer = new JPanel(new FlowLayout());
 		scrollContainer.add(gScrollPane);
+		
 		add(scrollContainer, BorderLayout.NORTH);
 		add(boardAndWinningsContainer, BorderLayout.SOUTH);
 
@@ -152,23 +208,35 @@ class FinalGamePanel extends JPanel
 			if(mouseListenerIsActive == true)
 			{
 				position = ((FinalCupPanel) event.getComponent().getParent()).getPosition();
-				System.out.println(player + " is the current player");
 				getBoard().playCup(getPlayer(), position);
-				System.out.println(getBoard().getCurrentPlayer() + " is the board class player after playCup method");
+				moveCount++;
+				updateMoveRecord();
 				setPlayer(getBoard().getCurrentPlayer());
-				updateCups();
+				updateBoard();
 			}
 		}
 	}
-	
-	
-	private class KeyHandler extends KeyAdapter
-	{
-		public void keyTyped(KeyEvent event)
-		{
 
+	public void updateMoveRecord()
+	{
+
+		int userCupNumber = position;
+		if(getPlayer() == 0)
+		{
+			userCupNumber= BOARDWIDTH - userCupNumber;
+			moveRecord.append("Move:" + getMove() + ", Player " + (getPlayer() + 1) + 
+					" has played Cup " + userCupNumber + " and captured " + getBoard().getLastWinnings() + " seeds\n");
 		}
+		else if (getPlayer() == 1)
+		{
+			userCupNumber+=1;
+			moveRecord.append("Move:" + getMove() + ", Player " + (getPlayer() + 1) + 
+					" has played Cup " + userCupNumber + " and captured " + getBoard().getLastWinnings() + " seeds\n");
+		}
+
 	}
+
+
 
 
 	public int getMove()
@@ -196,13 +264,17 @@ class FinalGamePanel extends JPanel
 		board = gBoard;
 	}
 
-	public void updateCups()
+	public JTextArea getMoveRecord()
+	{
+		return moveRecord;
+	}
+
+	public void updateBoard()
 	{
 		Component[] components;
-		System.out.println("UpdateCups has been called!");
 		for( int i=0; i< 2; i++)
 		{
-			for(int j = 0; j < 10; j++)
+			for(int j = 0; j < BOARDWIDTH; j++)
 			{
 				graphicalPanel[i][j].getCup().setSeeds(getBoard().getBoard()[i][j].getSeeds());
 				graphicalPanel[i][j].getTextField().setText(String.valueOf(getBoard().getBoard()[i][j].getSeeds()));
@@ -219,7 +291,6 @@ class FinalGamePanel extends JPanel
 							{
 								if(components[k].getMouseListeners()[l].getClass().getName().equals("FinalGamePanel$MouseClickHandler"))
 								{
-									//System.out.println("A clicker has been stopped at Player " + i + " Position " + j);
 									((MouseClickHandler)components[k].getMouseListeners()[l]).stopMouseListener();
 								}
 							}
@@ -230,7 +301,6 @@ class FinalGamePanel extends JPanel
 								{
 									if(components[k].getMouseListeners()[m].getClass().getName().equals("FinalGamePanel$MouseClickHandler"))
 									{
-										//System.out.println("A clicker has been started at Player " + i + " Position " + j);
 										((MouseClickHandler)components[k].getMouseListeners()[m]).startMouseListener();
 									}
 								}
@@ -242,9 +312,22 @@ class FinalGamePanel extends JPanel
 		}
 		playerOneWinnings.getTextField().setText(String.valueOf(getBoard().getWinOneCup().getSeeds()));
 		playerTwoWinnings.getTextField().setText(String.valueOf(getBoard().getWinTwoCup().getSeeds()));
-		
+
 		setPlayer(getBoard().getCurrentPlayer());
-		
+
+	}
+
+
+
+	public void resetGame(FinalTogizBoard inBoard)
+	{
+		setPlayer(0);
+		moveCount = 0;
+		setBoard(inBoard);
+		inBoard.initializeBoard();
+		inBoard.setPlayer(0);
+		updateBoard();
+		moveRecord.setText("");
 	}
 
 
