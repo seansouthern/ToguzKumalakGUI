@@ -3,6 +3,7 @@ import java.awt.Graphics2D;
 import java.awt.GridLayout;
 
 import javax.swing.JButton;
+import javax.swing.JTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;

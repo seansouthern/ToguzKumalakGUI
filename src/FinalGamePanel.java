@@ -82,15 +82,39 @@ class FinalGamePanel extends JPanel
 	
 	private class TextboxKeyFocusHandler extends KeyAdapter
 	{
-		public void keyTyped(KeyEvent event)
+		public void keyPressed(KeyEvent event)
 		{
 			System.out.println("Hello, key pressed on TextField");
 			if (event.getKeyCode() == event.VK_ENTER)
 			{
-				
-				
+				System.out.println("is it vk enter?");
+				for (int u = 0; u < 2; u++)
+				{
+					for(int v = 0; v < 10; v++)
+					{
+						if(((FinalCupPanel)event.getComponent().getParent()) == graphicalPanel[u][v])
+						{
+							System.out.println("Matched object!");
+							graphicalPanel[u][(v+1)].getTextField().requestFocus();
+						}
+					}
+				}
+			}
+			else
+			{
+				System.out.println("Are events being consumed?");
+				event.consume();
 			}
 		}
+		
+		public void keyTyped(KeyEvent event)
+		{
+			if(event.getKeyCode() != event.VK_ENTER)
+			{
+				event.consume();
+			}
+		}
+		
 	}
 	
 	public void buildBoard(FinalTogizBoard inBoard)
@@ -163,6 +187,24 @@ class FinalGamePanel extends JPanel
 			}
 		}
 
+		Component[] winOne = playerOneWinnings.getComponents();
+		for (int p = 0; p < winOne.length; p++)
+		{
+			if(winOne[p].getName() != null && winOne[p].getName().equals("textfield"));
+			{
+				winOne[p].addKeyListener(new TextboxKeyFocusHandler());
+				
+			}
+		}
+		Component[] winTwo = playerTwoWinnings.getComponents();
+		for (int q = 0; q < winTwo.length; q++)
+		{
+			if(winTwo[q].getName() != null && winTwo[q].getName().equals("textfield"));
+			{
+				winTwo[q].addKeyListener(new TextboxKeyFocusHandler());
+			}
+		}
+		
 		winTwoContainer.add(playerTwoWinnings);
 
 		moveRecord = new JTextArea(6,54);
@@ -191,7 +233,7 @@ class FinalGamePanel extends JPanel
 	private class MouseClickHandler extends MouseAdapter
 	{
 		private boolean mouseListenerIsActive = true;
-
+		
 		public void startMouseListener()
 		{
 			mouseListenerIsActive = true;
@@ -205,6 +247,8 @@ class FinalGamePanel extends JPanel
 		public void mouseClicked(MouseEvent event)
 		{
 			System.out.println("Button pressed!");
+			requestFocus();
+			
 			if(mouseListenerIsActive == true)
 			{
 				position = ((FinalCupPanel) event.getComponent().getParent()).getPosition();
@@ -278,7 +322,7 @@ class FinalGamePanel extends JPanel
 			{
 				graphicalPanel[i][j].getCup().setSeeds(getBoard().getBoard()[i][j].getSeeds());
 				graphicalPanel[i][j].getTextField().setText(String.valueOf(getBoard().getBoard()[i][j].getSeeds()));
-
+				
 				components = graphicalPanel[i][j].getComponents();
 
 				for (int k = 0; k < components.length; k++)
