@@ -79,7 +79,7 @@ class FinalGamePanel extends JPanel
 			}
 		}
 	}
-	
+
 	private class TextboxKeyFocusHandler extends KeyAdapter
 	{
 		public void keyPressed(KeyEvent event)
@@ -87,7 +87,6 @@ class FinalGamePanel extends JPanel
 			System.out.println("Hello, key pressed on TextField");
 			if (event.getKeyCode() == event.VK_ENTER)
 			{
-				System.out.println("is it vk enter?");
 				for (int u = 0; u < 2; u++)
 				{
 					for(int v = 0; v < 10; v++)
@@ -95,18 +94,39 @@ class FinalGamePanel extends JPanel
 						if(((FinalCupPanel)event.getComponent().getParent()) == graphicalPanel[u][v])
 						{
 							System.out.println("Matched object!");
-							graphicalPanel[u][(v+1)].getTextField().requestFocus();
+
+							if(u == 0)
+							{
+								if(v == 0)
+								{
+									graphicalPanel[1][0].getTextField().requestFocus();
+								}
+								else
+								{
+									graphicalPanel[u][(v-1)].getTextField().requestFocus();
+								}
+							}
+							else if(u == 1)
+							{
+								if(v == 9)
+								{
+									graphicalPanel[0][9].getTextField().requestFocus();
+								}
+								else
+								{
+									graphicalPanel[u][(v+1)].getTextField().requestFocus();
+								}
+							}
 						}
 					}
 				}
 			}
 			else
 			{
-				System.out.println("Are events being consumed?");
 				event.consume();
 			}
 		}
-		
+
 		public void keyTyped(KeyEvent event)
 		{
 			if(event.getKeyCode() != event.VK_ENTER)
@@ -114,9 +134,9 @@ class FinalGamePanel extends JPanel
 				event.consume();
 			}
 		}
-		
+
 	}
-	
+
 	public void buildBoard(FinalTogizBoard inBoard)
 	{
 		graphicalPanel = new FinalCupPanel[2][BOARDWIDTH];
@@ -155,10 +175,10 @@ class FinalGamePanel extends JPanel
 						if(components[k].getName().equals("button"))
 						{
 							components[k].addMouseListener(new MouseClickHandler());
-							
+
 							//Necessary to allow for coexisting keyboard listeners
 							components[k].setFocusable(false);
-							
+
 							for(int l = 0; l < components[k].getMouseListeners().length; l++)
 							{
 								if(components[k].getMouseListeners()[l].getClass().getName().equals("FinalGamePanel$MouseClickHandler"))
@@ -181,30 +201,13 @@ class FinalGamePanel extends JPanel
 						else if(components[k].getName().equals("textfield"))
 						{
 							components[k].addKeyListener(new TextboxKeyFocusHandler());
+							components[k].addKeyListener(new KeyboardMoveHandler());
 						}
 					}
 				}
 			}
 		}
 
-		Component[] winOne = playerOneWinnings.getComponents();
-		for (int p = 0; p < winOne.length; p++)
-		{
-			if(winOne[p].getName() != null && winOne[p].getName().equals("textfield"));
-			{
-				winOne[p].addKeyListener(new TextboxKeyFocusHandler());
-				
-			}
-		}
-		Component[] winTwo = playerTwoWinnings.getComponents();
-		for (int q = 0; q < winTwo.length; q++)
-		{
-			if(winTwo[q].getName() != null && winTwo[q].getName().equals("textfield"));
-			{
-				winTwo[q].addKeyListener(new TextboxKeyFocusHandler());
-			}
-		}
-		
 		winTwoContainer.add(playerTwoWinnings);
 
 		moveRecord = new JTextArea(6,54);
@@ -215,7 +218,7 @@ class FinalGamePanel extends JPanel
 
 		scrollContainer = new JPanel(new FlowLayout());
 		scrollContainer.add(gScrollPane);
-		
+
 		add(scrollContainer, BorderLayout.NORTH);
 		add(boardAndWinningsContainer, BorderLayout.SOUTH);
 
@@ -233,7 +236,7 @@ class FinalGamePanel extends JPanel
 	private class MouseClickHandler extends MouseAdapter
 	{
 		private boolean mouseListenerIsActive = true;
-		
+
 		public void startMouseListener()
 		{
 			mouseListenerIsActive = true;
@@ -248,7 +251,7 @@ class FinalGamePanel extends JPanel
 		{
 			System.out.println("Button pressed!");
 			requestFocus();
-			
+
 			if(mouseListenerIsActive == true)
 			{
 				position = ((FinalCupPanel) event.getComponent().getParent()).getPosition();
@@ -322,7 +325,7 @@ class FinalGamePanel extends JPanel
 			{
 				graphicalPanel[i][j].getCup().setSeeds(getBoard().getBoard()[i][j].getSeeds());
 				graphicalPanel[i][j].getTextField().setText(String.valueOf(getBoard().getBoard()[i][j].getSeeds()));
-				
+
 				components = graphicalPanel[i][j].getComponents();
 
 				for (int k = 0; k < components.length; k++)
