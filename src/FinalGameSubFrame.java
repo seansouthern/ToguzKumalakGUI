@@ -65,6 +65,8 @@ class FinalGameSubFrame extends JFrame
 
 		gFileChooser = new JFileChooser();
 
+		// Centers new frame on screen
+		setLocationRelativeTo(null);
 		setVisible(true);
 
 

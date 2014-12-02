@@ -47,7 +47,6 @@ class FinalGamePanel extends JPanel
 	{
 		public void keyTyped(KeyEvent event)
 		{
-			System.out.println("Hello, key pressed.");
 			int numInput = 0;
 			char keyChar = event.getKeyChar();
 			if(Character.isDigit(keyChar))
@@ -84,7 +83,6 @@ class FinalGamePanel extends JPanel
 	{
 		public void keyPressed(KeyEvent event)
 		{
-			System.out.println("Hello, key pressed on TextField");
 			if (event.getKeyCode() == event.VK_ENTER)
 			{
 				for (int u = 0; u < 2; u++)
@@ -249,7 +247,6 @@ class FinalGamePanel extends JPanel
 
 		public void mouseClicked(MouseEvent event)
 		{
-			System.out.println("Button pressed!");
 			requestFocus();
 
 			if(mouseListenerIsActive == true)

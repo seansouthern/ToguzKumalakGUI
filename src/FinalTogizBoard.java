@@ -44,8 +44,6 @@ public class FinalTogizBoard implements Serializable
 		FinalCup cupPlayed = getBoard()[player][cupPlayedInd];
 		int seedsToPlay;
 
-		System.out.println(playerWhoseTurnItIs + " is the player parameter of playCup");
-		
 		if(playerWhoseTurnItIs == player)
 		{
 
@@ -111,17 +109,12 @@ public class FinalTogizBoard implements Serializable
 			}
 
 			togglePlayer();
-			
-			System.out.println(player + " is the player at the end of playCup");
-			
-			printBoard();
 		}
 	}
 
 	public void togglePlayer()
 	{
 		
-		System.out.println(player + " is the player in TogglePlayer method");
 		if (player == 1)
 		{
 			player = 0;
